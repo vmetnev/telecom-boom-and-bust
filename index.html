@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Telecom Boom And Bust</title>
+<style>
+  :root {
+    --background: oklch(0.993 0.006 82);
+    --foreground: oklch(0.31 0.018 50);
+    --card: oklch(0.999 0.003 90);
+    --primary: oklch(0.40 0.055 250);
+    --primary-foreground: oklch(0.99 0.004 90);
+    --secondary: oklch(0.974 0.01 82);
+    --muted: oklch(0.974 0.01 82);
+    --muted-foreground: oklch(0.51 0.015 55);
+    --metadata: oklch(0.64 0.012 60);
+    --border: oklch(0.915 0.012 78);
+    --chart-1: oklch(0.40 0.055 250);
+    --chart-2: oklch(0.58 0.03 70);
+    --sidebar: oklch(0.987 0.008 82);
+    --radius: 0.5rem;
+    --ink: var(--foreground);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+  .site {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: 48px;
+    padding: 0 16px;
+    background: var(--sidebar);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--foreground);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    flex: none;
+  }
+  .site nav {
+    display: flex;
+    min-width: 0;
+    align-self: stretch;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .site nav::-webkit-scrollbar { display: none; }
+  .site nav a {
+    display: inline-flex;
+    align-items: center;
+    height: 48px;
+    padding: 0 12px;
+    border-bottom: 2px solid transparent;
+    color: var(--muted-foreground);
+    text-decoration: none;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  .site nav a:hover { color: var(--foreground); }
+  .site nav a:focus-visible,
+  .site nav a:active {
+    border-bottom-color: var(--primary);
+    color: var(--foreground);
+    font-weight: 500;
+  }
+  main {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 20px 20px 64px;
+  }
+  article, h1, h2, h3 { scroll-margin-top: 64px; }
+  h1 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    margin: 28px 0 8px;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    margin: 20px 0 6px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .lede, p, li { color: var(--foreground); }
+  .lede { margin-top: 0; color: var(--muted-foreground); }
+  p { margin: 0 0 12px; }
+  ul, ol { margin: 0 0 12px; padding-left: 1.25em; }
+  li { margin: 0 0 6px; }
+  .prompt {
+    margin: 20px 0 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) * 1.4);
+    background: var(--secondary);
+  }
+  .prompt span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0 16px;
+  }
+  .card, .note, .table-wrap, .chart, .stack {
+    background: var(--card);
+    border-radius: calc(var(--radius) * 1.4);
+    box-shadow: 0 0 0 1px var(--border);
+  }
+  .card { padding: 16px; }
+  .card .kicker {
+    margin: 0 0 4px;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .card strong {
+    display: block;
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .card em {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted-foreground);
+    font-size: 14px;
+    font-style: normal;
+  }
+  .note {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    color: var(--muted-foreground);
+    font-size: 14px;
+  }
+  .table-wrap { margin: 12px 0 16px; overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  th, td {
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    height: 40px;
+    background: color-mix(in oklch, var(--muted) 40%, transparent);
+    color: var(--muted-foreground);
+    font-weight: 500;
+  }
+  tr:last-child td { border-bottom: 0; }
+  tbody tr:hover td { background: color-mix(in oklch, var(--muted) 40%, transparent); }
+  .chart { margin: 12px 0 8px; padding: 16px; }
+  .chart h3 { margin: 0 0 4px; }
+  .chart .sub { margin: 0 0 14px; color: var(--muted-foreground); }
+  .bars { display: flex; align-items: flex-end; gap: 16px; height: 220px; }
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+  }
+  .bar {
+    width: 100%;
+    max-width: 72px;
+    background: var(--chart-1);
+    border-radius: 6px 6px 2px 2px;
+  }
+  .bar.alt { background: var(--chart-2); }
+  .bar-col b { margin-bottom: 6px; font-size: 13px; font-weight: 500; }
+  .bar-col span { margin-top: 8px; color: var(--muted-foreground); font-size: 12px; text-align: center; }
+  .stack { margin: 12px 0 16px; }
+  .layer { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .layer:last-child { border-bottom: 0; }
+  .layer strong { display: block; font-weight: 500; }
+  .layer span { color: var(--muted-foreground); font-size: 14px; }
+  .sources { color: var(--metadata); font-size: 12px; }
+  @media (max-width: 640px) {
+    .cards { grid-template-columns: 1fr; }
+    .site { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="#story">
+    <span class="mark" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19V9"/><path d="M4 13h4"/><path d="M10 19V5"/><path d="M10 9h4"/><path d="M16 19v-7"/><path d="M16 15h4"/>
+      </svg>
+    </span>
+    Telecom Boom And Bust
+  </a>
+  <nav>
+    <a href="#story">Telecom story</a>
+    <a href="#differences">AI differences</a>
+  </nav>
+</header>
+<main>
+
+  <div class="prompt">
+    <span>Summary</span>
+    There are striking parallels between today's AI boom and the telecom boom and bust of 1995–2005. Both were fueled by expectations of exponential demand growth, massive capital investment, and the belief that new technologies would fundamentally transform entire industries. Yet for many telecom operators and equipment suppliers, the boom ended in financial disaster. Some went bankrupt, while others were saddled with enormous debt. Much of the economic value created by the telecommunications revolution was ultimately captured by companies such as Google, Meta, and Apple, while telecom operators were left operating capital-intensive, utility-like businesses. The key question is whether today's AI boom will follow a similar trajectory or whether fundamental differences between the two industries will produce a different outcome.
+  </div>
+
+  <article id="story">
+    <h1>The Great Telecom Boom and Bust, 1995–2005</h1>
+    <p class="lede">How one of the most exciting technology revolutions became a capital-intensive, low-growth industry.</p>
+    <p>In the late 1990s, telecommunications companies were viewed as the infrastructure providers of a completely new digital economy. They were going to connect billions of people through mobile networks, deliver the internet to every household, and transform the way businesses communicated.</p>
+    <p>Investors believed that telecom operators would become some of the most valuable companies in the world. Equipment manufacturers such as Cisco Systems, Nortel Networks, Lucent Technologies and Ericsson were seen as the technological enablers of this revolution.</p>
+    <p>And the technological revolution really did happen.</p>
+    <p>Billions of people eventually got mobile phones. Internet traffic exploded. Fiber-optic networks connected the world.</p>
+    <p>But the economic returns to the companies financing the revolution were dramatically different from what investors had expected.</p>
+    <p>Many operators accumulated enormous debts. Some went bankrupt. Equipment suppliers suffered devastating declines in revenues. And the surviving telecom operators eventually came to be valued more like utilities than technology growth companies.</p>
+    <p>The distinction is critical: investors were largely correct about the technological future, but often wrong about who would capture the economic value.</p>
+
+    <h2>1. 1995–1999: The beginning of the revolution</h2>
+    <p>The telecommunications industry was undergoing three transformations simultaneously.</p>
+    <p><strong>First: Fixed-line to mobile.</strong> Traditional telephone operators had built their businesses around fixed-line networks. Mobile telephony offered an enormous new market. Mobile penetration was still relatively low in many countries, and investors expected years of very rapid subscriber growth.</p>
+    <p><strong>Second: Voice to data.</strong> Telecommunications networks had historically carried telephone calls. The internet fundamentally changed the industry. Data traffic could grow exponentially, creating demand for fiber-optic cables, optical switches, routers and transmission equipment.</p>
+    <p><strong>Third: Monopolies to competition.</strong> Telecommunications deregulation in the United States and Europe opened markets to new entrants. Established operators had to defend their customers while simultaneously investing in new technologies.</p>
+    <p>The investment thesis seemed almost unbeatable:</p>
+    <ul>
+      <li>Mobile subscribers would increase dramatically.</li>
+      <li>Internet traffic would grow exponentially.</li>
+      <li>Operators would require entirely new infrastructure.</li>
+      <li>Equipment vendors would enjoy years of exceptional revenue growth.</li>
+      <li>First movers would establish dominant positions in the new digital economy.</li>
+    </ul>
+    <p>It wasn't just a speculative story. There was substantial real demand behind it.</p>
+    <p>The problem was that nearly every operator and infrastructure investor was acting on the same expectations.</p>
+
+    <h2>2. 1999–2001: The great capital expenditure boom</h2>
+    <p>The industry entered an enormous infrastructure investment cycle.</p>
+    <div class="cards">
+      <div class="card">
+        <p class="kicker">UK 3G spectrum auction, 2000</p>
+        <strong>£22.5bn</strong>
+        <em>Paid by operators for five mobile licenses</em>
+      </div>
+      <div class="card">
+        <p class="kicker">Germany 3G auction, 2000</p>
+        <strong>€50bn</strong>
+        <em>Approximately, across six licenses</em>
+      </div>
+    </div>
+    <p class="note">Sources cited in the chat: UK Parliament and historical German auction reporting.</p>
+    <p>The licenses alone required extraordinary capital commitments. Then operators needed to spend billions more on base stations, antennas, network switching, backhaul infrastructure and software.</p>
+    <p>And they did not necessarily have the cash flows to finance this expansion.</p>
+    <p>European companies including Vodafone, Deutsche Telekom, France Télécom and BT Group competed aggressively for spectrum, acquisitions and expansion opportunities.</p>
+    <p>In the United States, the investment cycle was especially intense in fiber-optic infrastructure.</p>
+    <p>Between 1996 and 2001, the telecom sector spent nearly $500 billion building networks, while accumulating almost $300 billion in debt, according to contemporary reporting.</p>
+    <p>The central mistake was confusing exponential demand growth with attractive returns on capital.</p>
+    <p>Even if demand doubled every year, returns could be disappointing if supply expanded even faster.</p>
+    <p>And new optical transmission technologies made the problem worse: the capacity of existing fiber networks increased dramatically without requiring proportionate new fiber construction.</p>
+    <p>The industry was simultaneously building too many networks and discovering ways to carry far more traffic over each network.</p>
+
+    <h2>3. The equipment suppliers: The great winners that became victims</h2>
+    <p>The transformation affected three layers of the supply chain very differently.</p>
+    <p><strong>Network equipment — Nortel, Lucent, Ericsson, Alcatel.</strong> These companies supplied switches, radio access networks, optical transmission systems and network management equipment. Initially, they benefited from extraordinary orders as operators built new infrastructure. Their sales then collapsed when operators stopped expanding.</p>
+    <p><strong>Networking equipment — Cisco, Juniper.</strong> Cisco benefited from the transition to IP-based networking. It was better diversified than many traditional telecom vendors, but its carrier and enterprise customers still cut purchasing sharply after the boom.</p>
+    <p><strong>Components, optical devices and chips — JDS Uniphase, Corning, Broadcom, Agere, PMC-Sierra.</strong> These businesses supplied optical components, fiber, communications semiconductors and specialized network processors. Many faced particularly severe cyclicality because their customers had already accumulated excess equipment inventories.</p>
+
+    <h3>Lucent: From industry leader to consolidation</h3>
+    <div class="cards">
+      <div class="card">
+        <p class="kicker">Lucent revenue FY1999</p>
+        <strong>$38.3bn</strong>
+        <em>At the height of the boom</em>
+      </div>
+      <div class="card">
+        <p class="kicker">Lucent revenue FY2006</p>
+        <strong>$8.8bn</strong>
+        <em>Before its merger with Alcatel</em>
+      </div>
+    </div>
+    <div class="chart">
+      <h3>Lucent's revenue collapse</h3>
+      <p class="sub">Fiscal-year revenue, USD billions. Endpoint comparison, not a continuous series.</p>
+      <div class="bars" aria-label="Lucent revenue 38.3 billion in 1999 and 8.8 billion in 2006">
+        <div class="bar-col">
+          <b>$38.3bn</b>
+          <div class="bar" style="height:85%"></div>
+          <span>1999</span>
+        </div>
+        <div class="bar-col">
+          <b>$8.8bn</b>
+          <div class="bar" style="height:20%"></div>
+          <span>2006</span>
+        </div>
+      </div>
+    </div>
+    <p>Lucent was the world's largest telecommunications equipment manufacturer in 1999. Its revenue fell by approximately 77% by 2006, reflecting both the industry collapse and its own operational and strategic problems. It eventually merged with Alcatel.</p>
+
+    <h3>Nortel: The most dramatic example</h3>
+    <p>Nortel was especially exposed to optical networking and large carrier capital spending.</p>
+    <p>Its annual report provides a remarkable illustration:</p>
+    <ul>
+      <li>Total revenue declined 42% in 2002 compared with 2001.</li>
+      <li>Optical Networks revenue fell 64% over the same period.</li>
+      <li>Operators began prioritizing debt reduction and using existing capacity rather than buying more equipment.</li>
+    </ul>
+    <p>Nortel never fully recovered and eventually filed for bankruptcy protection in 2009.</p>
+
+    <h3>JDS Uniphase: The supplier of the suppliers</h3>
+    <p>JDS Uniphase manufactured optical components used in fiber transmission systems.</p>
+    <div class="card" style="margin-bottom:16px">
+      <p class="kicker">Quarterly sales expansion, 1999–2000</p>
+      <strong>$87m → $925m</strong>
+      <em>Sales increased more than tenfold from June 1999 to December 2000, partly reflecting acquisitions.</em>
+    </div>
+    <p>Then the entire optical supply chain began reducing orders and liquidating inventory. JDS Uniphase's own 2002 filing explicitly attributed the collapse to overcapacity, debt and inventory reductions at both equipment manufacturers and network operators.</p>
+    <p>This is a particularly important lesson: the company furthest upstream can experience much greater revenue volatility than the underlying end market.</p>
+
+    <h3>Cisco: A stronger business, but not immune</h3>
+    <p>In April 2001, Cisco announced plans for approximately $2.5 billion in excess inventory charges and substantial restructuring.</p>
+    <p>Cisco survived, continued innovating and eventually built a profitable, diversified networking business. But the extraordinary investment expectations around 2000 were reset.</p>
+    <p>The winners of the equipment boom did not necessarily remain high-growth businesses once the network construction cycle ended.</p>
+
+    <h2>4. 2001–2003: The collapse</h2>
+    <p>The reversal happened through a chain reaction.</p>
+    <ol>
+      <li><strong>Internet and mobile demand grew slower than forecast.</strong> Especially relative to the enormous capacity being installed.</li>
+      <li><strong>Network utilization and pricing disappointed.</strong> Fiber bandwidth became increasingly commoditized.</li>
+      <li><strong>Operators faced debt and cash-flow pressure.</strong> Capital spending was cut sharply.</li>
+      <li><strong>Equipment suppliers lost orders.</strong> Revenue collapsed, inventories were written off and employees were laid off.</li>
+      <li><strong>Bankruptcies and industry consolidation.</strong> Network assets changed owners, often at distressed valuations.</li>
+    </ol>
+    <p>The most notable casualties included WorldCom and Global Crossing, both of which filed for bankruptcy protection in 2002.</p>
+    <p>WorldCom's collapse also involved major accounting fraud, which aggravated an already severe industry downturn.</p>
+    <p>According to the OECD, telecommunications companies accounted for 56.4% of worldwide corporate bond defaults by value in 2002.</p>
+    <p>The dramatic point is that the networks did not disappear. Much of the infrastructure continued operating, often under new ownership with substantially lower financial obligations.</p>
+    <p>That left the surviving operators competing against infrastructure that had effectively been written down.</p>
+
+    <h2>5. 2003–2015: From technology leaders to utility-like companies</h2>
+    <p>This part of the story is especially interesting because the mobile revolution continued after the financial collapse.</p>
+    <p>Mobile subscribers kept growing. 3G arrived, followed by smartphones and 4G. Data consumption increased enormously.</p>
+    <p>But the industry's economic model had changed.</p>
+    <div class="table-wrap"><table>
+      <thead>
+        <tr><th>During the boom</th><th>After the boom</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Rapid subscriber growth</td><td>Gradual market saturation</td></tr>
+        <tr><td>Expansion into new markets</td><td>Consolidation and cost reduction</td></tr>
+        <tr><td>New network construction</td><td>Maintenance and incremental upgrades</td></tr>
+        <tr><td>Expectations of rising ARPU</td><td>Pricing competition and ARPU pressure</td></tr>
+        <tr><td>Valuations based on future growth</td><td>Valuations increasingly based on cash flow and dividends</td></tr>
+        <tr><td>Aggressive borrowing</td><td>Balance-sheet repair</td></tr>
+      </tbody>
+    </table></div>
+    <p>The central economic problem was that telecom operators were becoming providers of essential connectivity rather than owners of the highest-value digital services.</p>
+    <p>They controlled the networks, but increasingly did not control the applications.</p>
+    <p>Consider how the economic value shifted:</p>
+    <ul>
+      <li>Operators supplied mobile connectivity; Apple and Google built smartphone ecosystems.</li>
+      <li>Operators supplied internet access; Google monetized online advertising and search.</li>
+      <li>Operators transported data; Amazon built cloud infrastructure services.</li>
+      <li>Operators carried mobile messaging traffic; WhatsApp and other applications displaced traditional SMS revenue.</li>
+    </ul>
+    <p>In many markets, customers became accustomed to paying a relatively stable monthly subscription while consuming increasing quantities of data.</p>
+    <p>The network became indispensable, but its economic value did not increase proportionately with the traffic it carried.</p>
+    <p>Telecom operators did not literally become regulated utilities everywhere. They remained competitive businesses, often with significant recurring revenue and pricing differences across markets. But from an investment standpoint, many began to resemble utilities: capital intensive, mature, dividend-oriented and sensitive to regulation and financing costs.</p>
+    <p>One more paradox emerged: even after the initial buildout was complete, the industry could not stop investing. Successive generations of mobile technology required further spectrum purchases and network upgrades.</p>
+    <p>The technological revolution never really ended. The extraordinary returns anticipated from it did.</p>
+
+    <h2>6. The most important distinction: Who captured the value?</h2>
+    <p>The companies that built the infrastructure were not necessarily the companies that benefited most from the digital economy.</p>
+    <div class="table-wrap"><table>
+      <thead>
+        <tr><th>Industry layer</th><th>Examples</th><th>Long-term outcome</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Telecom operators</td><td>Vodafone, BT, Deutsche Telekom, Orange</td><td>Mostly mature, capital-intensive businesses</td></tr>
+        <tr><td>Fiber infrastructure operators</td><td>Global Crossing, WorldCom, Level 3</td><td>Bankruptcies, restructuring and consolidation</td></tr>
+        <tr><td>Network equipment suppliers</td><td>Nortel, Lucent, Ericsson, Nokia</td><td>Severe shakeout, fewer competitors</td></tr>
+        <tr><td>Networking technology</td><td>Cisco, Juniper</td><td>Survived, but growth and valuations normalized</td></tr>
+        <tr><td>Optical components and fiber</td><td>JDS Uniphase, Corning</td><td>Extreme cyclical downturn, subsequent diversification</td></tr>
+        <tr><td>Semiconductor suppliers</td><td>Broadcom, PMC-Sierra, Agere</td><td>Mixed results; some diversified, others acquired</td></tr>
+        <tr><td>Digital platforms</td><td>Google, Amazon, Apple, Meta</td><td>Captured enormous value through software, services and ecosystems</td></tr>
+      </tbody>
+    </table></div>
+    <p>This last category is particularly important.</p>
+    <p>The telecom industry essentially financed an infrastructure revolution that helped create several trillion dollars of value for companies operating on top of its networks.</p>
+    <p>The internet didn't disappoint. Its adoption eventually exceeded many early expectations.</p>
+    <p>But the industry's structure allowed much of the incremental economic value to migrate away from the network operators.</p>
+
+    <h2>7. The investment lesson: Technology growth is not the same as shareholder returns</h2>
+    <p>There are five important lessons from this period.</p>
+    <ol>
+      <li><strong>Exponential demand does not guarantee exponential revenue.</strong> Internet traffic exploded, but bandwidth prices collapsed as capacity became abundant.</li>
+      <li><strong>The biggest risk is often supply, not demand.</strong> The industry was correct that the world needed far more connectivity. It was wrong about how many competing networks could earn attractive returns.</li>
+      <li><strong>The best years for equipment suppliers may occur before the infrastructure is fully utilized.</strong> Their revenue depends on capital expenditure, not simply on end-user consumption. Once the building phase ends, suppliers can face a dramatic contraction even while underlying usage continues growing.</li>
+      <li><strong>Debt turns an investment cycle into a solvency crisis.</strong> A company with an overbuilt network and a clean balance sheet might survive until demand catches up. A company with enormous debt may not.</li>
+      <li><strong>The greatest economic value may be captured by businesses that use the infrastructure rather than finance it.</strong> Telecom operators made internet platforms possible, but the platforms ultimately captured much of the growth.</li>
+    </ol>
+
+    <h2>8. The relevance to the AI infrastructure boom</h2>
+    <p>This history has an obvious connection to the present AI investment cycle, although the comparison is not exact.</p>
+    <div class="table-wrap"><table>
+      <thead>
+        <tr><th>Telecom boom, 1995–2000</th><th>AI infrastructure boom</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Mobile subscribers and internet traffic</td><td>AI tokens, inference and training workloads</td></tr>
+        <tr><td>Telecom operators and fiber providers</td><td>Hyperscalers and neoclouds</td></tr>
+        <tr><td>Network construction and spectrum</td><td>Data centers, power and GPU clusters</td></tr>
+        <tr><td>Cisco, Nortel, Lucent</td><td>Nvidia, AMD, Broadcom, Dell, HPE</td></tr>
+        <tr><td>Optical component suppliers</td><td>HBM manufacturers, networking and power equipment suppliers</td></tr>
+        <tr><td>Internet services built on top of networks</td><td>AI applications and agentic services</td></tr>
+      </tbody>
+    </table></div>
+    <p>There is an especially interesting historical parallel in the relationship between technology efficiency and infrastructure economics.</p>
+    <p>In the late 1990s, technologies such as wavelength-division multiplexing dramatically expanded the capacity of individual fiber networks.</p>
+    <p>That was excellent for the internet but problematic for companies whose business models depended on persistent bandwidth scarcity.</p>
+    <p>Today, improvements in model efficiency, inference algorithms, hardware performance and utilization could similarly reduce the compute required for a given AI task.</p>
+    <p>However, lower costs could also stimulate sufficiently large increases in demand to keep infrastructure utilization high.</p>
+    <p>The crucial question is which effect dominates and whether demand growth translates into attractive returns on invested capital.</p>
+    <p>There are also important differences. Much of today's AI infrastructure spending is financed by highly profitable hyperscalers, rather than the more fragile telecom entrants of the 1990s. AI infrastructure also has significant hardware-replacement and technological-obsolescence risks, unlike long-lived fiber assets.</p>
+
+    <h2>9. My interpretation</h2>
+    <p>The most fascinating aspect of the telecom story is that the companies did not necessarily fail because their technological vision was wrong. They failed because they extrapolated demand growth into profitability without adequately considering competition, technological deflation and the cost of capital.</p>
+    <p>And there is one particularly important distinction for investors evaluating Nvidia, AMD, Broadcom and the wider AI equipment ecosystem today:</p>
+    <p>The telecom equipment manufacturers initially earned money by supplying the infrastructure. But they did not control the pace of their customers' capital expenditure.</p>
+    <p>When telecom operators stopped investing, suppliers' revenues collapsed even though consumers continued using more telecommunications services every year.</p>
+    <p>That is the historical precedent worth studying.</p>
+    <p>The question is not simply whether AI demand will continue growing. It is whether the next dollar of AI infrastructure investment will generate an adequate return—and whether customers will continue buying equipment at the same pace once the initial capacity buildout is complete.</p>
+    <p>Three historical cases are worth examining particularly closely: Nortel as an example of the infrastructure equipment cycle, Cisco as a technologically successful survivor whose valuation had run too far ahead, and Corning and JDS Uniphase as examples of extreme upstream supply-chain cyclicality. Together, they provide a useful framework for analyzing today's AI infrastructure companies.</p>
+  </article>
+
+  <div class="prompt">
+    <span>Summary</span>
+    AI is not a straight replay of telecom. Telecom built pipes to move information and was financed by fragile borrowers; AI builds capacity to do economic work and is led by cash-rich hyperscalers that can earn money at several layers of the stack. The risks that rhyme are still serious: spending is running ahead of proven profits, debt is rising, GPUs go obsolete much faster than fiber, and a few buyers control supplier demand. Data-center landlords are the most likely to end up utility-like. The open question is whether infrastructure owners earn enough cash to fund both expansion and constant replacement, or whether customers and software platforms keep most of the gain.
+  </div>
+
+  <article id="differences">
+    <h1>Telecom boom vs. AI boom: The fundamental differences</h1>
+    <p class="lede">The biggest difference is that the telecom boom was primarily about building infrastructure to transport information, while the AI boom is about building infrastructure to produce intelligence and perform economic tasks.</p>
+    <p>This distinction may have enormous implications for the revenue and profitability of the companies financing the infrastructure.</p>
+    <p>There is another important difference: the telecom boom was largely financed by operators borrowing against expected future growth. The AI boom is being led by highly profitable technology companies with existing customers, enormous cash flows and established distribution channels.</p>
+    <p>But as of November 2026, the similarities are becoming more concerning: AI infrastructure spending is growing much faster than established AI-related profits, debt financing is increasing, and infrastructure providers are signing very large long-term commitments.</p>
+
+    <h2>1. The seven major differences</h2>
+    <div class="table-wrap"><table>
+      <thead>
+        <tr><th>Dimension</th><th>Telecom, 1995–2001</th><th>AI, 2023–2026</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1. Financing</td><td>Heavy borrowing, often by financially vulnerable operators</td><td>Led by cash-generating hyperscalers, but increasingly supplemented by debt</td></tr>
+        <tr><td>2. Demand</td><td>Connectivity was an established need; future data volumes were overestimated</td><td>AI demand is real, but the scale of profitable future applications remains uncertain</td></tr>
+        <tr><td>3. Revenue model</td><td>Mostly subscriptions, voice minutes and bandwidth</td><td>Compute rental, subscriptions, advertising, software and automation</td></tr>
+        <tr><td>4. Infrastructure life</td><td>Fiber and towers could remain useful for decades</td><td>GPUs can become economically obsolete much faster</td></tr>
+        <tr><td>5. Industry structure</td><td>Many operators simultaneously constructing competing networks</td><td>A handful of hyperscalers dominate spending and capacity allocation</td></tr>
+        <tr><td>6. Pricing power</td><td>Bandwidth increasingly became a commodity</td><td>AI compute may commoditize, but models, software and platforms can differentiate</td></tr>
+        <tr><td>7. Capacity constraints</td><td>Excess fiber could be deployed relatively quickly</td><td>Power, land, cooling and grid connections constrain expansion</td></tr>
+      </tbody>
+    </table></div>
+    <p>These differences make an exact repetition of the telecom collapse unlikely. They do not rule out an AI investment downturn.</p>
+
+    <h2>2. Difference #1: Who is paying for the infrastructure?</h2>
+    <p>This is probably the most important financial difference.</p>
+    <p>During the telecom boom, companies such as WorldCom and Global Crossing borrowed heavily to construct networks that would only become profitable if future traffic, utilization and prices met ambitious forecasts.</p>
+    <p>When traffic revenues disappointed, they lacked the cash flows to service their debts. That produced bankruptcies and a collapse in equipment spending.</p>
+    <p>Today's principal AI investors are different.</p>
+    <p>Microsoft, Alphabet, Amazon and Meta entered the AI cycle with enormous existing businesses generating substantial operating cash flow.</p>
+    <p>They can use cash generated by advertising, software subscriptions, e-commerce and cloud computing to fund new AI investments.</p>
+    <p>But the distinction is narrowing.</p>
+    <div class="chart">
+      <h3>2026 capital expenditure guidance — four major hyperscalers</h3>
+      <p class="sub">Approximate 2026 guidance or comparable calendar-year estimates, USD billions. Company-reported capex definitions differ and spending includes non-AI projects. Bar heights are read from the chart on the shared page, which did not print the bar values.</p>
+      <div class="bars">
+        <div class="bar-col">
+          <b>~$223bn</b>
+          <div class="bar alt" style="height:93%"></div>
+          <span>Amazon</span>
+        </div>
+        <div class="bar-col">
+          <b>~$203bn</b>
+          <div class="bar alt" style="height:85%"></div>
+          <span>Alphabet</span>
+        </div>
+        <div class="bar-col">
+          <b>~$178bn</b>
+          <div class="bar alt" style="height:74%"></div>
+          <span>Microsoft</span>
+        </div>
+        <div class="bar-col">
+          <b>~$142bn</b>
+          <div class="bar alt" style="height:59%"></div>
+          <span>Meta</span>
+        </div>
+      </div>
+    </div>
+    <p class="note">Indicative values based on company guidance and industry trackers, as described in the chat. Microsoft uses a different reporting calendar, and these are not all directly comparable cash-spending figures.</p>
+    <p>Consider two recent developments:</p>
+    <ul>
+      <li>On November 3, 2026, Meta raised another $15 billion through a bond offering to help finance AI infrastructure. Its total debt stood at approximately $83.7 billion at September 30.</li>
+      <li>By November 4, major hyperscalers had collectively raised more than $370 billion in corporate bond financing during 2026, according to Reuters.</li>
+    </ul>
+    <p>The AI investment cycle is therefore increasingly moving from internally financed investment toward a combination of operating cash flow, debt, leasing and external capital.</p>
+    <p>The strongest hyperscalers are much better positioned than the vulnerable telecom operators of 2000, but smaller AI infrastructure providers could experience very similar financial problems.</p>
+
+    <h2>3. Difference #2: The infrastructure has a very different economic life</h2>
+    <p>This is where there is an important potential disadvantage for AI investors.</p>
+    <div class="cards">
+      <div class="card">
+        <p class="kicker">Telecom: fiber infrastructure</p>
+        <strong style="font-size:22px;color:var(--ink)">Long-lived physical assets</strong>
+        <em>Once constructed, the network could deliver services for decades, with periodic equipment upgrades.</em>
+      </div>
+      <div class="card">
+        <p class="kicker">AI: GPU infrastructure</p>
+        <strong style="font-size:22px;color:var(--ink)">Rapid obsolescence</strong>
+        <em>Older systems may lose competitiveness before they physically wear out.</em>
+      </div>
+    </div>
+    <p>The fiber-optic networks built around 2000 largely remained useful even after their owners went bankrupt.</p>
+    <p>AI data centers are different because a large proportion of their investment is in rapidly evolving computing equipment.</p>
+    <p>Alphabet disclosed in October 2026 that about 65% of its technical infrastructure investment in the third quarter was servers and networking equipment with generally six-year accounting lives, while the remaining 35% was data centers with lives of seven to 40 years.</p>
+    <p>Accounting depreciation is not necessarily the same as economic depreciation.</p>
+    <p>Reuters reported on November 6 that Microsoft was winding down an AI capacity agreement with Oracle, partly because the infrastructure relied on older Nvidia GPUs that no longer met Microsoft's evolving needs. Oracle disputed the implication that demand for older GPUs was weak.</p>
+    <p>That provides a concrete example of this risk.</p>
+    <p>Implication: telecom infrastructure could become economically valuable again once demand caught up with capacity. AI equipment might become technologically uncompetitive before that happens.</p>
+    <p>On the other hand, if demand continues to grow, frequent technology upgrades could sustain the revenue of chip and equipment suppliers for longer than the telecom equipment cycle did.</p>
+    <p>The question becomes whether upgrade spending is profitable for the buyer.</p>
+
+    <h2>4. Difference #3: Telecom infrastructure transmitted data. AI infrastructure can create products.</h2>
+    <p>This is arguably the most powerful argument in favor of the AI boom.</p>
+    <p>A telecom operator earns money by giving customers access to connectivity. Its revenues have a relatively limited relationship with the economic value created by the applications using that connection.</p>
+    <p>A company might earn billions of dollars using the internet, but the telecom operator generally does not receive a percentage of that company's profits.</p>
+    <p>AI is different because it can perform tasks that customers currently pay humans or software providers to perform.</p>
+    <p>For example, a company might use AI to process insurance claims, analyze financial documents, write software or manage customer service. The economic value can be substantial.</p>
+    <p>This gives AI providers the opportunity to monetize productivity rather than just traffic.</p>
+    <p>But there's an important distinction between the value AI creates and the value AI providers capture.</p>
+    <div class="chart">
+      <h3>Illustrative economics of AI automation</h3>
+      <p class="sub">Hypothetical annual economics for an enterprise customer. Not an industry forecast. Customer savings are before implementation, oversight and other costs.</p>
+      <div class="bars" style="height:200px">
+        <div class="bar-col">
+          <b>$10m</b>
+          <div class="bar" style="height:100%"></div>
+          <span>Customer cost savings</span>
+        </div>
+        <div class="bar-col">
+          <b>$2m</b>
+          <div class="bar alt" style="height:20%"></div>
+          <span>AI software and compute fees</span>
+        </div>
+        <div class="bar-col">
+          <b>$8m</b>
+          <div class="bar" style="height:80%"></div>
+          <span>Customer retains</span>
+        </div>
+      </div>
+    </div>
+    <p>The economic value of AI can be enormous even if the AI provider captures only a relatively small percentage of it.</p>
+    <p>In other words, a very large AI economy could coexist with mediocre returns for the companies supplying compute.</p>
+    <p>This is exactly the type of distinction investors underestimated during the telecom boom.</p>
+
+    <h2>5. Difference #4: Hyperscalers are vertically integrated</h2>
+    <p>During the telecom boom, the operator built the network, while other companies created services on top of it.</p>
+    <p>Today, Microsoft, Google, Amazon and Meta can participate at multiple levels of the AI value chain.</p>
+    <div class="stack">
+      <div class="layer">
+        <strong>Applications and services</strong>
+        <span>Copilot, Gemini, advertising, enterprise applications</span>
+      </div>
+      <div class="layer">
+        <strong>AI models and software platforms</strong>
+        <span>Foundation models, APIs, agents and developer platforms</span>
+      </div>
+      <div class="layer">
+        <strong>Cloud computing infrastructure</strong>
+        <span>Azure, Google Cloud, AWS</span>
+      </div>
+      <div class="layer">
+        <strong>Chips, data centers, networking and power</strong>
+        <span>Purchased GPUs, custom accelerators and physical infrastructure</span>
+      </div>
+    </div>
+    <p>Google, for example, can earn revenue from selling compute to customers, selling AI-related services, and improving monetization in its existing advertising business.</p>
+    <p>Its third-quarter 2026 Cloud revenue grew 103% year over year, including contributions from TPU systems sales. Google Cloud also reported a 36.2% operating margin. These are segment-wide results, not a separate measure of AI infrastructure profitability.</p>
+    <p>This does not make AI infrastructure investment automatically profitable. It does mean hyperscalers have more ways to recover their investment than traditional telecom operators had.</p>
+    <p>That could help prevent the entire industry from becoming a low-return utility business.</p>
+
+    <h2>6. Difference #5: Competition and capacity are structured differently</h2>
+    <p>The telecom boom was partly driven by deregulation.</p>
+    <p>Many companies simultaneously built networks because each wanted to capture market share. Much of the new fiber capacity was technologically interchangeable, which intensified price competition.</p>
+    <p>AI infrastructure currently has a more concentrated set of major buyers.</p>
+    <p>Companies such as Microsoft, Google, Amazon and Meta make enormous purchasing decisions, creating advantages in scale, procurement, networking and operating efficiency.</p>
+    <p>There are also physical constraints that can limit the speed of new capacity additions: electricity supply, grid interconnections, cooling, permitting and construction.</p>
+    <p>These constraints may temporarily support the economics of existing data centers.</p>
+    <p>But concentration introduces another risk.</p>
+    <p>A relatively small number of customers now influence a very large percentage of the demand for advanced GPUs and AI infrastructure.</p>
+    <p>If two or three hyperscalers were to reduce capital expenditure growth, the impact on suppliers could be substantial.</p>
+    <p>And for smaller AI infrastructure providers, the situation can be much more dangerous.</p>
+    <p>In October 2026, Reuters reported that CoreWeave had accumulated roughly $50 billion in debt, with Microsoft having accounted for 67% of its 2025 revenue. This combination of leverage, asset obsolescence risk and customer concentration resembles some of the financial vulnerabilities of the telecom boom.</p>
+
+    <h2>7. Difference #6: AI demand is already generating revenues, but the business model is still developing</h2>
+    <p>When telecom companies purchased expensive 3G licenses in 2000, the applications that would eventually make mobile data indispensable were not yet mature.</p>
+    <p>The iPhone arrived in 2007. The modern smartphone application economy developed even later.</p>
+    <p>In other words, infrastructure was often constructed years before its most valuable use cases emerged.</p>
+    <p>For AI, there is already meaningful commercial demand from software development, cloud computing, advertising, enterprise applications and automation.</p>
+    <p>That reduces the risk of building infrastructure for a market that does not yet exist.</p>
+    <p>However, current revenue does not by itself prove that the infrastructure earns an adequate return.</p>
+    <p>For example, one AI model provider can generate substantial revenue by buying computing capacity from a cloud provider. The cloud provider then buys Nvidia chips.</p>
+    <p>All three companies report commercial activity, but only the final customer paying for AI services provides the ultimate economic justification for the chain.</p>
+    <p>If the end customer is not generating sufficient value, the entire spending chain could eventually slow.</p>
+
+    <h2>8. Difference #7: Nvidia is not Nortel, but its customers matter enormously</h2>
+    <p>The semiconductor suppliers may be among the most interesting areas of comparison.</p>
+    <p>Nortel and Lucent supplied essential equipment, but much of their demand came from operators whose spending capacity eventually collapsed.</p>
+    <p>Nvidia has several advantages that many telecom suppliers lacked: a highly developed software ecosystem, proprietary technology, exposure to numerous applications and significant technological differentiation.</p>
+    <p>Nonetheless, these advantages don't eliminate the capital expenditure cycle.</p>
+    <p>For Nvidia, AMD, Broadcom, HBM manufacturers and systems integrators, two sources of growth matter:</p>
+    <ul>
+      <li><strong>Expansion spending:</strong> customers build entirely new AI capacity.</li>
+      <li><strong>Replacement spending:</strong> customers upgrade existing infrastructure to newer, more efficient technology.</li>
+    </ul>
+    <p>AI could generate a larger and more persistent replacement market than fiber-optic networks because its computing assets have shorter competitive lives.</p>
+    <p>That is positive for equipment suppliers, provided customers can afford the upgrades.</p>
+    <p>But replacement-driven sales can also indicate that infrastructure owners are spending heavily merely to maintain competitiveness rather than to expand profitable capacity.</p>
+
+    <h2>9. What should be monitored to determine whether AI follows telecom</h2>
+    <p>The central variable is not GPU shipments or AI token growth. It is the relationship between AI infrastructure investment and the profits ultimately generated.</p>
+    <div class="table-wrap"><table>
+      <thead>
+        <tr><th>Indicator</th><th>Healthy AI investment cycle</th><th>Telecom-like warning</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>AI revenue growth</td><td>Revenue grows with deployed capacity</td><td>Capacity grows much faster than revenue</td></tr>
+        <tr><td>Compute pricing</td><td>Prices support attractive returns on installed assets</td><td>Prices fall faster than costs</td></tr>
+        <tr><td>Data center utilization</td><td>High utilization after commissioning</td><td>Growing idle capacity</td></tr>
+        <tr><td>Free cash flow</td><td>Recovers as infrastructure matures</td><td>Persistently negative despite revenue growth</td></tr>
+        <tr><td>Customer economics</td><td>AI applications demonstrate recurring profits or savings</td><td>Spending depends on subsidies or external financing</td></tr>
+        <tr><td>Debt financing</td><td>Debt is comfortably supported by cash flow</td><td>Repayment depends on refinancing and continued growth</td></tr>
+        <tr><td>Equipment spending</td><td>Expansion and replacement remain economically justified</td><td>Customers abruptly cancel or postpone orders</td></tr>
+      </tbody>
+    </table></div>
+    <p>One troubling development is that debt and contractual commitments are already becoming much larger. In October 2026, S&amp;P Global warned that six major US hyperscalers could spend more than $7 trillion on AI-related infrastructure between 2025 and 2030, while some obligations and financing exposures are difficult to measure.</p>
+
+    <h2>10. Which AI businesses could eventually become utilities?</h2>
+    <p>The industry splits into four categories.</p>
+    <div class="table-wrap"><table>
+      <thead>
+        <tr><th>AI business</th><th>Potential long-term outcome</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Data center landlords and basic GPU rental providers</td><td>Most exposed to utility-like economics and commoditization</td></tr>
+        <tr><td>Power and cooling infrastructure providers</td><td>Infrastructure economics, potentially attractive where capacity is scarce</td></tr>
+        <tr><td>GPU and networking equipment suppliers</td><td>High-margin technology businesses, but vulnerable to investment cycles</td></tr>
+        <tr><td>Integrated cloud, AI platform and application providers</td><td>Greater potential to capture differentiated software and service profits</td></tr>
+      </tbody>
+    </table></div>
+    <p>Of course, the boundaries can change. If AI models and agent services become highly interchangeable, even portions of the software layer might commoditize.</p>
+
+    <h3>My central conclusion</h3>
+    <p>The AI investment story has two competing characteristics.</p>
+    <p><strong>The case for AI being structurally different from telecom:</strong> the infrastructure produces a service with potentially enormous economic value; today's leading investors are financially stronger; demand is already commercial; and vertical integration gives hyperscalers several ways to monetize their investments.</p>
+    <p><strong>The case for AI repeating telecom:</strong> companies are extrapolating exponential demand growth into enormous capital commitments. Technological advances could reduce the price of compute faster than expected. Competition could push much of the economic value toward customers, while suppliers and infrastructure owners carry the investment burden.</p>
+    <p>The most important difference may actually work against the AI infrastructure owners: the economic life of their expensive computing equipment can be dramatically shorter than the life of a fiber-optic network.</p>
+    <p>A telecom operator that overbuilt fiber in 2000 could sometimes wait years for demand to catch up. A GPU cloud operator that overbuilds in 2026 may have to write down its equipment before sufficient demand arrives.</p>
+    <p>That makes the AI cycle potentially more forgiving for the strongest vertically integrated hyperscalers, but less forgiving for highly leveraged, specialized infrastructure providers.</p>
+  </article>
+</main>
+</body>
+</html>
